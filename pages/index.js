@@ -42,7 +42,7 @@ export default function HomePage() {
   return (
     <div className="container">
       {checkingToken ? (
-        <p>Checking token...</p>
+        <p className="loading-text">Checking token...</p>
       ) : (
         <>
           {!validToken && (
@@ -58,6 +58,52 @@ export default function HomePage() {
           )}
         </>
       )}
+
+      {/* Adding styles */}
+      <style jsx>{`
+        .container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          text-align: center;
+        }
+
+        .loading-text {
+          font-size: 18px;
+          color: #555;
+        }
+
+        button {
+          padding: 12px 24px;
+          font-size: 18px;
+          border: none;
+          cursor: pointer;
+          border-radius: 8px;
+          transition: 0.3s;
+          margin: 10px;
+          width: 200px;
+        }
+
+        .verifyButton {
+          background-color: #ff5722;
+          color: white;
+        }
+
+        .verifyButton:hover {
+          background-color: #e64a19;
+        }
+
+        .visitButton {
+          background-color: #4caf50;
+          color: white;
+        }
+
+        .visitButton:hover {
+          background-color: #388e3c;
+        }
+      `}</style>
     </div>
   );
 }
