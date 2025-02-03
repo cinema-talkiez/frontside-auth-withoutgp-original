@@ -47,6 +47,72 @@ export default function VerifyPage() {
 
         <p>After verification, you will be redirected back automatically.</p>
       </div>
+
+      <style jsx>{`
+        .verificationContainer {
+          display: flex;
+          height: 100vh;
+          align-items: center;
+          justify-content: center;
+          background-color: #f8f9fa;
+        }
+
+        .verificationBox {
+          text-align: center;
+          background: white;
+          padding: 30px;
+          border-radius: 10px;
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+          width: 90%;
+          max-width: 400px;
+        }
+
+        h2 {
+          margin-bottom: 10px;
+          color: #333;
+        }
+
+        p {
+          color: #555;
+        }
+
+        .error {
+          color: red;
+          font-size: 14px;
+          margin-bottom: 10px;
+        }
+
+        .verifyButton {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 100%;
+          padding: 12px;
+          font-size: 18px;
+          border: none;
+          cursor: pointer;
+          border-radius: 8px;
+          transition: 0.3s;
+          background-color: #007bff;
+          color: white;
+          font-weight: bold;
+          margin-top: 15px;
+        }
+
+        .verifyButton:disabled {
+          background-color: #6c757d;
+          cursor: not-allowed;
+        }
+
+        .verifyButton:hover {
+          background-color: #0056b3;
+        }
+
+        .icon1 {
+          margin-right: 8px;
+          font-size: 22px;
+        }
+      `}</style>
     </div>
   );
 }
