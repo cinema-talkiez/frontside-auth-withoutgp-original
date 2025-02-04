@@ -3,7 +3,6 @@ import WelcomeAnimation from "@/components/WelcomeAnimation";
 import useFectchData from "@/hooks/useFetchData";
 import Head from "next/head";
 import { FaTelegramPlane } from "react-icons/fa";
-
 import { Swiper, SwiperSlide } from "swiper/react";
 import 'swiper/css';
 import "swiper/css/autoplay";
@@ -29,7 +28,6 @@ import { FaHome, FaSearch, FaTv, FaPlay, FaBars } from "react-icons/fa";
 
 
 
-
 export default function Home() {
   const router = useRouter();
 
@@ -37,96 +35,96 @@ export default function Home() {
     const storedValidToken = localStorage.getItem("validToken");
     const storedExpirationTime = localStorage.getItem("validTokenExpiration");
 
-    if (storedValidToken !== "true" || !storedExpirationTime || Date.now() > parseInt(storedExpirationTime)) {
-      // Token expired or missing, redirect back to index.js
+    if (
+      storedValidToken !== "true" ||
+      !storedExpirationTime ||
+      Date.now() > parseInt(storedExpirationTime)
+    ) {
       router.push("/");
     }
   }, [router]);
 
+  // Fetch data
+  const { alldata, loading } = useFetchData("/api/getmovies");
 
-  // fetch data with usehook
-  const { alldata, loading } = useFectchData("/api/getmovies");
+  // Filter for published movies
+  const publishedData = alldata.filter((ab) => ab.status === "publish");
 
-  const [wloading, setWLoading] = useState(true);
+  const [selectedGenre, setSelectGenre] = useState("all movies");
 
+  const genres = [
+    "all movies",
+    "action",
+    "adventure",
+    "animation",
+    "comedy",
+    "drama",
+    "crime",
+    "fantasy",
+    "horror",
+    "romance",
+    "thriller",
+    "science_fiction",
+  ];
 
-  // filter for published movies required
-  const publishedData = alldata.filter(ab => ab.status === "publish");
-  const seriesData = publishedData.filter((ab) => ab.titlecategory === 'series');
-  const animeData = publishedData.filter((ab) => ab.titlecategory === "anime");
-  const hollywoodData = publishedData.filter((ab) => ab.category === 'telugu');
-  // function for filter by genre 
-  const [selectedGenre, setSelectGenre] = useState('all movies');
-
-  const genres = ['all movies', 'action', 'adventure', 'animation', 'comedy', 'drama', 'crime', 'fantasy', 'horror', 'romance', 'thriller', 'science_fiction'];
-
-  const categories = ["bollywood", "telugu", "south", "gujarati", "marvel_studio", "tv_Shows", "web_series"];
+  const categories = [
+    "bollywood",
+    "telugu",
+    "south",
+    "gujarati",
+    "marvel_studio",
+    "tv_Shows",
+    "web_series",
+  ];
 
   const handleGenreClick = (genre) => {
     setSelectGenre(genre);
-  }
-  const filmsData = publishedData.filter((ab) => ab.titlecategory === "films");
+  };
 
-  const filteredData = publishedData.filter(movie => {
-    if (selectedGenre === 'all movies') return true;
+  const filteredData = publishedData.filter((movie) => {
+    if (selectedGenre === "all movies") return true;
     if (categories.includes(selectedGenre)) {
       return movie.category === selectedGenre;
     } else {
       return movie.genre.includes(selectedGenre);
     }
-
-  })
+  });
 
   const [updatedData, setUpdatedData] = useState([]);
 
   useEffect(() => {
     if (!loading) {
-      // Filter only published films (you can modify this filter if needed)
-      const publishedData = (alldata || []).filter((ab) => ab.status === "publish");
-
-      // Sort the data by updatedAt in descending order
       const sortedData = publishedData.sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
       );
-
-      // Set the sorted data
       setUpdatedData(sortedData);
     }
   }, [alldata, loading]);
-  const recentlyAddedData = (alldata || [])
-    .filter((film) => film.status === "publish") // Only show published films
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by `createdAt` date descending
 
-  // Navbar header component scroll sticky
+  const recentlyAddedData = publishedData
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  // Sticky Navbar on Scroll
   useEffect(() => {
     const handleScroll = () => {
       const header = document.querySelector("nav");
-      header.classList.toggle("sticky", window.scrollY > 0);
+      if (header) {
+        header.classList.toggle("sticky", window.scrollY > 0);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Functions for navlist item page routing active status
- 
   const [clicked, setClicked] = useState(false);
   const [navbar, setNavbar] = useState(false);
   const [searchbar, setSearchbar] = useState(false);
-
   const [activeLink, setActiveLink] = useState("/");
-
-  // Search function by title of the movie
   const [movieshortname, setMovieshortname] = useState("");
-  const [searchResult, setSearchResult] = useState(null);
-  const [error, setError] = useState(null);
+  const [searchResult, setSearchResult] = useState([]);
+  const searchRef = useRef(null);
 
-
-
-  // Function to handle search
   useEffect(() => {
     if (!movieshortname.trim()) {
       setSearchResult([]);
@@ -136,105 +134,25 @@ export default function Home() {
     const filteredMovies = publishedData.filter((movie) =>
       movie.title.toLowerCase().includes(movieshortname.toLowerCase())
     );
-
     setSearchResult(filteredMovies);
   }, [movieshortname]);
 
-  const handleMovieClick = () => {
-    setMovieshortname("");
-  };
-
-  const searchRef = useRef(null);
-
-  // Function to close search bar when clicking outside
-  const handleClickOutside = (event) => {
-    if (searchRef.current && !searchRef.current.contains(event.target)) {
-      setMovieshortname("");
-    }
-  };
-
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setMovieshortname("");
+      }
     };
-  });
 
-  const handleClick = () => {
-    setClicked(!clicked);
-  };
-
-  const handleLinkClick = (link) => {
-    setActiveLink(link);
-    setClicked(false);
-  };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
-    // Update active link state when the page is reloaded
     setActiveLink(router.pathname);
   }, [router.pathname]);
+}
 
-  // Navbar
-  const handleNavbarOpen = () => {
-    setNavbar(!navbar);
-  };
-
-  const handleNavbarClose = () => {
-    setNavbar(false);
-  };
-
-  // Search bar
-  const handleSearchbarClose = () => {
-    setSearchbar(false);
-  };
-
-  const searchInputRef = useRef(null);
-
-  const handleSearchbarOpen = () => setSearchbar(true);
-  const scrollContainerRef = useRef(null);
-
-  const [isMouseDown, setIsMouseDown] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-
-  const handleMouseDown = (e) => {
-    setIsMouseDown(true);
-    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
-    setScrollLeft(scrollContainerRef.current.scrollLeft);
-  };
-
-  const handleMouseLeave = () => {
-    setIsMouseDown(false);
-  };
-
-  const handleMouseUp = () => {
-    setIsMouseDown(false);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isMouseDown) return;
-    const x = e.pageX - scrollContainerRef.current.offsetLeft;
-    const scroll = scrollLeft - (x - startX);
-    scrollContainerRef.current.scrollLeft = scroll;
-  };
-
-  const handleTouchStart = (e) => {
-    setIsMouseDown(true);
-    setStartX(e.touches[0].pageX - scrollContainerRef.current.offsetLeft);
-    setScrollLeft(scrollContainerRef.current.scrollLeft);
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isMouseDown) return;
-    const x = e.touches[0].pageX - scrollContainerRef.current.offsetLeft;
-    const scroll = scrollLeft - (x - startX);
-    scrollContainerRef.current.scrollLeft = scroll;
-  };
-
-  const handleTouchEnd = () => {
-    setIsMouseDown(false);
-  };
 
 
   return (
